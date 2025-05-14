@@ -1,1 +1,42 @@
+name: Develop - Copy, Pull and Deploy
 
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "dev-v*.*.*"
+env:
+  VPS_WORKING_DIR: /srv/https/differential.com/supabase/3000:8001:8443:supabase-docker
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Copy dist to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          become: true # Activa sudo
+          # Selecting .yml"
+          source: ./docker/*
+          # The path is based on the directory where the user logged into the server starts
+          target: ${{ env.VPS_WORKING_DIR }}
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd ${{ env.VPS_WORKING_DIR }}
+            ls -la
+            docker compose -f docker-compose.yml pull
+            docker compose -f docker-compose.yml up -d --force-recreate
