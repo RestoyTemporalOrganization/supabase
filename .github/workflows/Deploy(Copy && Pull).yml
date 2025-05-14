@@ -7,7 +7,7 @@ on:
     tags:
       - "dev-v*.*.*"
 env:
-  VPS_WORKING_DIR: /srv/https/differential.com/supabase/3000.8001.8443.supabase-docker
+  VPS_WORKING_DIR: /srv/https/differential.com/supabase/3000.7999.8443.supabase-docker
 
 jobs:
   deploy:
